@@ -1,5 +1,8 @@
 from app import app
 
+application = app
+
+
 if __name__ == '__main__':
-    app.debug = True
-    app.run()
+    application.debug = True
+    application.run()
