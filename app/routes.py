@@ -71,13 +71,14 @@ def allowed_file(filename):
 @app.route('/index')
 @login_required
 def index():
-    imgs = current_user.get_images()
-    img_urls = []
-    for i in imgs:
-        current_img_url = os.path.join(app.config['UPLOAD_FOLDER'], i.filename)
-        img_urls.append(current_img_url)
+    # imgs = current_user.get_images()
+    # img_urls = []
+    # for i in imgs:
+    #     current_img_url = os.path.join(app.config['UPLOAD_FOLDER'], i.filename)
+    #     img_urls.append(current_img_url)
 
-    return render_template('index.html', images=img_urls)
+    # return render_template('index.html', images=img_urls)
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
