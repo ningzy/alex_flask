@@ -3,8 +3,8 @@ from app import app
 
 s3 = boto3.client(
     "s3",
-    aws_key = app.config['S3_KEY']
-    aws_secret = app.config['S3_SECRET']
+    aws_access_key_id = app.config['S3_KEY'],
+    aws_secret_access_key = app.config['S3_SECRET']
 )
 
 def upload_to_s3(file, filename, bucket_name, acl='public-read'):

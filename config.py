@@ -11,7 +11,7 @@ class Config(object):
     UPLOAD_FOLDER = os.path.join(basedir, 'test_images')
     ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
-    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    S3_KEY = os.environ.get('S3_ACCESS_KEY')
-    S3_SECRET = os.environ.get('S3_SECRET_ACCESS_KEY')
-    S3_LOCATION = 'http://{}.s3.amazonaws.com'.format(S3_BUCKET)
+    S3_BUCKET = 'alex-upload-flask'
+    S3_KEY = 'AKIAJGRGCUNBPS4W6XZQ'
+    S3_SECRET = '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'
+    S3_LOCATION = 'https://s3.amazonaws.com/{}'.format(S3_BUCKET)

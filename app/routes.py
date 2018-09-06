@@ -9,7 +9,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from app import app, db
 from app.forms import LoginForm, RegisterForm
 from app.models import User, Uploaded_files
-import boto3, botocore
+from datetime import datetime
+from app.tools import upload_to_s3
 
 import os
 
@@ -42,27 +43,6 @@ import os
 #     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
 #     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=app.config['S3_KEY'],
-    aws_secret_access_key=app.config['S3_SECRET']
-)
-
-def upload_to_s3(file, bucket_name, acl='public-read'):
-    try:
-        s3.upload_fileobj(
-            file,
-            bucket_name,
-            file.filename,
-            ExtraArgs={
-                "ACL": acl,
-                "ContentType": file.content_type
-            }
-        )
-    except Exception as e:
-        print("S3 erros: ", e)
-        return e
-
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -71,13 +51,13 @@ def allowed_file(filename):
 @app.route('/index')
 @login_required
 def index():
-    # imgs = current_user.get_images()
-    # img_urls = []
-    # for i in imgs:
-    #     current_img_url = os.path.join(app.config['UPLOAD_FOLDER'], i.filename)
-    #     img_urls.append(current_img_url)
+    imgs = current_user.get_images()
+    img_urls = []
+    for i in imgs:
+        current_img_url = os.path.join(app.config['S3_LOCATION'], i.filename)
+        img_urls.append(current_img_url)
 
-    # return render_template('index.html', images=img_urls)
+    return render_template('index.html', images=img_urls)
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -155,8 +135,11 @@ def upload_file():
             flash('No selected file')
             return redirect(url_for('index'))
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # filename = secure_filename(file.filename)
+            ext = os.path.splitext(file.filename)[1]
+            filename = current_user.username + '_' + datetime.now().strftime('%Y%m%d%H%M%S%f') + ext
+            output = upload_to_s3(file, filename, app.config['S3_BUCKET'])
+            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             flash('Image upload successful!')
             # user = User.query.filter_by(username=current_user.name).first()
             upload_image = Uploaded_files(filename=filename, author=current_user)
